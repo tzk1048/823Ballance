@@ -81,7 +81,7 @@ public class Keikaku extends HttpServlet {
         setSql  = setSql + " group by i.カテゴリID, カテゴリ";
         setSql  = setSql + " order by カテゴリID, アイテムID";
 
-        //memo
+        
         resultSet = oraConnect.ExcecuteQuery(setSql);
         Vector<Vector<String>> item = oraConnect.getSqlResult(resultSet);
 
