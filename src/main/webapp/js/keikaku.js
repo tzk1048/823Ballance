@@ -10,9 +10,14 @@ var itemID=[];
 var sumPrice=[];
 var itemhidden= [] //itemCategoryごとの表示非表示　0:表示 1:非表示
 
+//初期化処理
 const load =()=> {
 	//document.getElementById("test").innerText="test";
+	
+	//カテゴリーの取得
 	itemCategory = document.getElementsByClassName("itemTable");
+	
+	//アイテムの取得
 	for (var i=0;i < itemCategory.length;i++) {
 		//alert(itemCategory[i].id);
 		itemCategoryID[i]=itemCategory[i].id.replace("itemTable_","");
@@ -27,10 +32,6 @@ const load =()=> {
 			//priceSum+=eval(document.getElementById("itemPrice_"+koID[j]).value);
 		}
 		itemID[i]=koID;
-		//console.log("sumpr:" + priceSum);
-		//console.log("cID:" + "itemSumPrice_"+itemCategoryID[i]);
-		//document.getElementById("itemSumPrice_"+itemCategoryID[i]).innerText=priceSum;
-		//sumPrice[i]=priceSum;
 	}
 	
 	getSumPrice();
@@ -70,17 +71,22 @@ window.addEventListener('DOMContentLoaded', function(){
 
 				itemCheck.addEventListener("change",function(){
 					console.log("Change action check");
-					getSumPrice();			
+					console.log("id:" + itemCheck.id);
+					getSumPrice();
+					checkColor(itemCheck.id);			
 				});
 
 				itemCheck.addEventListener("input",function(){
 					console.log("Input action check");
-					getSumPrice();		
+					console.log("id:" + itemCheck.id);
+					getSumPrice();
+					checkColor(itemCheck.id);		
 				});
 			}
 		}
 });
 
+//カテゴリーを隠す
 const itemHidden =(CId)=> {
 	//console.log(CId);
 	var cindex=getCategoryIndex(CId);
@@ -98,6 +104,7 @@ const itemHidden =(CId)=> {
 	}
 }
 
+//カテゴリーのハイド状態を保持
 const itemHiddenUpd =()=> {
 	for(var i=0;i < itemCategoryID.length;i++){
 		if (itemhidden[i]==0) {
@@ -112,6 +119,7 @@ const itemHiddenUpd =()=> {
 	}
 }
 
+//カテゴリーIDのインデックスを取得
 const getCategoryIndex =(CId)=> {
 	for (var i=0;i < itemCategoryID.length;i++){
 		if(itemCategoryID[i]==CId){
@@ -122,6 +130,8 @@ const getCategoryIndex =(CId)=> {
 	return -1;
 }
 
+
+//カテゴリーごとの合計金額を計算
 const getSumPrice =()=> {
 	
 	for (var i=0;i < itemCategory.length;i++) {
@@ -150,6 +160,27 @@ const getSumPrice =()=> {
 	itemHiddenUpd();
 }
 
+const checkColor =(idName)=> {
+	
+	var id = idName.replace("itemChk_","");
+	console.log(id);
+	var chkbox = document.getElementById(idName);
+	var chkrow = document.getElementById("itemRowTr_" + id );
+	var inputnum = document.getElementById("itemPrice_" + id);
+	
+	console.log(chkbox.value);
+	
+	if (chkbox.checked) {
+		console.log("checked");
+		chkrow.style.color='#000000';
+		inputnum.style.color='#000000';
+	} else {
+		chkrow.style.color='#d3d3d3';
+		inputnum.style.color='#d3d3d3';
+	}
+}
+ 
 const defaultPrice =(id)=> {
 	document.getElementById('itemPrice_' + id).value = document.getElementById('itemPriceDefault_' + id).value;
+	getSumPrice();
 } 

@@ -29,6 +29,7 @@ public class Keikaku extends HttpServlet {
     }
     
     static String userid = "000000";
+    static OraDbConnect oraConnect =null;
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
@@ -38,19 +39,77 @@ public class Keikaku extends HttpServlet {
 		//response.getWriter().append("Served at: ").append(request.getContextPath());
 		this.setRespHeader(response);
 		PrintWriter out = null;
-		String setSql = "";
-		ResultSet resultSet = null;
 		
 		out = this.getRespWriter(response);
 		
-		OraDbConnect oraConnect = new OraDbConnect("823surface", "XEPDB1", "kaihatu", "tsbtzkstshkr");
+		oraConnect = new OraDbConnect("823surface", "XEPDB1", "kaihatu", "tsbtzkstshkr");
         if (oraConnect.OraConnect()) {
             System.out.println("接続失敗");
         }
         //ResultSet resultSet = oraConnect.ExcecuteQuery("SELECT * FROM TEST");
         //Vector<Vector<String>> vec = oraConnect.getSqlResult(resultSet);
         
-        resultSet = null;
+        writeHtml(out);
+        
+		out.close();
+	}
+
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		//doGet(request, response);
+		
+		//response.getWriter().append("Served at: ").append(request.getContextPath());
+				this.setRespHeader(response);
+				PrintWriter out = null;
+				
+				out = this.getRespWriter(response);
+				
+				oraConnect = new OraDbConnect("823surface", "XEPDB1", "kaihatu", "tsbtzkstshkr");
+		        if (oraConnect.OraConnect()) {
+		            System.out.println("接続失敗");
+		        }
+		        //ResultSet resultSet = oraConnect.ExcecuteQuery("SELECT * FROM TEST");
+		        //Vector<Vector<String>> vec = oraConnect.getSqlResult(resultSet);
+		        
+		        writeHtml(out);
+		        
+				out.close();
+	}
+	
+	private void setRespHeader(HttpServletResponse response) {
+		// TODO 自動生成されたメソッド・スタブ
+		//文字コードの設定
+		response.setContentType("text/html; charset=UTF-8");
+		//キャッシュの設定
+		response.setHeader("Cache-Control", "no-cache,no-store");
+		response.setHeader("Pragma", "no-cache");
+	}
+	
+	PrintWriter getRespWriter(HttpServletResponse response) {
+		//変数定義
+		String encoding ="";
+		OutputStreamWriter osw = null;
+		
+		//HTMLライタの設定
+		encoding = response.getCharacterEncoding();
+		try {
+			osw = new OutputStreamWriter(response.getOutputStream(), encoding);
+		} catch (Exception ex) {
+			return null;
+		}
+		
+		return new PrintWriter(osw, true);
+	}
+	
+	boolean writeHtml(PrintWriter out) {
+		
+		String setSql = "";
+		ResultSet resultSet = null;
+		
+		resultSet = null;
         setSql = "";
         setSql = " select アイテムID, i.カテゴリID, カテゴリ, アイテム, 金額 ";
         setSql = setSql + " from K_アイテムマスタ  i,K_カテゴリマスタ c ";
@@ -107,11 +166,11 @@ public class Keikaku extends HttpServlet {
 				out.println("<table class='itemRowSum' id='itemRowSum_" + incomeRow.get(1).toString().trim() + "'><tr><td class='itemSumName'>" + incomeRow.get(2).toString().trim() + "合計</td colspan='4'><td id='itemSumPrice_" + incomeRow.get(1).toString().trim() + "'>0</td><td class='itemSumBtn' id='itemSumBtn_" + incomeRow.get(1).toString().trim() + "' onclick=\"itemHidden('" + incomeRow.get(1).toString().trim() + "')\">-</td></tr></table>");
 				out.println("<div class='itemTablediv' id='itemTablediv_" + incomeRow.get(1).toString().trim() + "' style='display:block'>");
 				out.println("<table class='itemTable' id='itemTable_" + incomeRow.get(1).toString().trim() + "'>");
-				out.println("<tr id='itemRowTitle''><td></td><td>アイテムID</td><td>アイテム</td><td>金額</td></tr>");
+				out.println("<tr class='itemRowTitle'><td></td><td>アイテムID</td><td>アイテム</td><td>金額</td></tr>");
 			}
 			
 			
-			out.println("<tr class='itemRowDetail'>");
+			out.println("<tr class='itemRowDetail' id='itemRowTr_" + incomeRow.get(0).toString().trim() + "'>");
 			/*for (int j = 0; j < itemRow.size(); j++) {
 				out.println("<td>" + incomeRow.get(j).toString().trim() + "</td>");
 			}*/
@@ -141,9 +200,9 @@ public class Keikaku extends HttpServlet {
 				out.println("<table class='itemRowSum' id='itemRowSum_" + itemRow.get(1).toString().trim() + "'><tr><td class='itemSumName'>" + itemRow.get(2).toString().trim() + "合計</td colspan='4'><td id='itemSumPrice_" + itemRow.get(1).toString().trim() + "'>0</td><td class='itemSumBtn' id='itemSumBtn_" + itemRow.get(1).toString().trim() + "' onclick=\"itemHidden('" + itemRow.get(1).toString().trim() + "')\">-</td></tr></table>");
 				out.println("<div class='itemTablediv' id='itemTablediv_" + itemRow.get(1).toString().trim() + "' style='display:block'>");
 				out.println("<table class='itemTable' id='itemTable_" + itemRow.get(1).toString().trim() + "'>");
-				out.println("<tr id='itemRowTitle''><td></td><td>アイテムID</td><td>アイテム</td><td>金額</td></tr>");
+				out.println("<tr class='itemRowTitle'><td></td><td>アイテムID</td><td>アイテム</td><td>金額</td></tr>");
 			} 
-			out.println("<tr class='itemRowDetail'>");
+			out.println("<tr class='itemRowDetail' id='itemRowTr_" + itemRow.get(0).toString().trim() + "'>");
 			/*for (int j = 0; j < itemRow.size(); j++) {
 				out.println("<td>" + itemRow.get(j).toString().trim() + "</td>");
 			}*/
@@ -160,40 +219,8 @@ public class Keikaku extends HttpServlet {
 		out.println("<script type='text/javascript' src='js/keikaku.js'></script>");
 		out.println("</body>");
 		out.println("</html>");
-		out.close();
-	}
-
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		doGet(request, response);
-	}
-	
-	private void setRespHeader(HttpServletResponse response) {
-		// TODO 自動生成されたメソッド・スタブ
-		//文字コードの設定
-		response.setContentType("text/html; charset=UTF-8");
-		//キャッシュの設定
-		response.setHeader("Cache-Control", "no-cache,no-store");
-		response.setHeader("Pragma", "no-cache");
-	}
-	
-	PrintWriter getRespWriter(HttpServletResponse response) {
-		//変数定義
-		String encoding ="";
-		OutputStreamWriter osw = null;
 		
-		//HTMLライタの設定
-		encoding = response.getCharacterEncoding();
-		try {
-			osw = new OutputStreamWriter(response.getOutputStream(), encoding);
-		} catch (Exception ex) {
-			return null;
-		}
-		
-		return new PrintWriter(osw, true);
+		return false;
 	}
 
 
