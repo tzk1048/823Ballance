@@ -45,7 +45,7 @@ const load =()=> {
 
 window.addEventListener('DOMContentLoaded', function(){
   
-  let input_itemPrice = document.querySelectorAll("input[name=itemPrice]");
+  let input_itemPrice = document.querySelectorAll("input[name=ITEM_PRICE]");
 
 		if( 0 < input_itemPrice.length ) {
 
@@ -63,7 +63,7 @@ window.addEventListener('DOMContentLoaded', function(){
 			}
 		}
 		
-  let input_itemCheck = document.querySelectorAll("input[name=itemCheck]");
+  let input_itemCheck = document.querySelectorAll("input[name=ITEM_CHECK]");
 
 		if( 0 < input_itemCheck.length ) {
 

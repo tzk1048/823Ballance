@@ -152,7 +152,7 @@ public class Keikaku extends HttpServlet {
 		//out.println("<body>");
 		out.println("<body onload='load()'>");
 		out.println("<h1>HelloWorld</h1>");
-		out.println("<form name='formmain' method='post' target='_self'>");
+		out.println("<form name='FORMMAIN' method='post' target='_self'>");
 		out.println("<p id='test'>aiueo</p>");
 		
 		//out.println(item);
@@ -174,10 +174,10 @@ public class Keikaku extends HttpServlet {
 			/*for (int j = 0; j < itemRow.size(); j++) {
 				out.println("<td>" + incomeRow.get(j).toString().trim() + "</td>");
 			}*/
-			out.println("<input type='hidden' class='itemNo itemNoCategory_" + incomeRow.get(1).toString().trim() + "' id='itemNo_" + incomeRow.get(0).toString().trim() + "' name='itemNo'>");
-			out.println("<td class='itemCheck itemCheckCategory_" + incomeRow.get(1).toString().trim() + "' id='itemCheck_" + incomeRow.get(0).toString().trim() + "'><input type='checkbox' id='itemChk_" + incomeRow.get(0).toString().trim() + "' name='itemCheck' value='" + incomeRow.get(3).toString().trim() + "' checked></td>");
+			out.println("<input type='hidden' class='itemNo itemNoCategory_" + incomeRow.get(1).toString().trim() + "' id='itemNo_" + incomeRow.get(0).toString().trim() + "' name='ITEM_NO'>");
+			out.println("<td class='itemCheck itemCheckCategory_" + incomeRow.get(1).toString().trim() + "' id='itemCheck_" + incomeRow.get(0).toString().trim() + "'><input type='checkbox' id='itemChk_" + incomeRow.get(0).toString().trim() + "' name='ITEM_CHECK' value='" + incomeRow.get(3).toString().trim() + "' checked></td>");
 			out.println("<td class='itemName' id='item_" + incomeRow.get(0).toString().trim() + "'>" + incomeRow.get(3).toString().trim() + "</td>");
-			out.println("<td class='itemPrice itemPrice_c" + incomeRow.get(0).toString().trim() + "' id='itemPr_" + incomeRow.get(0).toString().trim() + "'><input id='itemPrice_" + incomeRow.get(0).toString().trim() + "' name='itemPrice' type='number' value="+ incomeRow.get(4).toString().trim() + "><input type ='hidden' name='itemPrice_default' id='itemPriceDefault_" + incomeRow.get(0).toString().trim() + "' value="+ incomeRow.get(4).toString().trim() + "></td>");
+			out.println("<td class='itemPrice itemPrice_c" + incomeRow.get(0).toString().trim() + "' id='itemPr_" + incomeRow.get(0).toString().trim() + "'><input id='itemPrice_" + incomeRow.get(0).toString().trim() + "' name='ITEM_PRICE' type='number' value="+ incomeRow.get(4).toString().trim() + "><input type ='hidden' name='ITEM_PRICEDEFAULT' id='itemPriceDefault_" + incomeRow.get(0).toString().trim() + "' value="+ incomeRow.get(4).toString().trim() + "></td>");
 			out.println("<td><div class='defaultBtn' onclick=\"defaultPrice('" + incomeRow.get(0).toString().trim() + "')\">Default</div></td>");
 			out.println("</tr>");
 		}
@@ -206,10 +206,10 @@ public class Keikaku extends HttpServlet {
 			/*for (int j = 0; j < itemRow.size(); j++) {
 				out.println("<td>" + itemRow.get(j).toString().trim() + "</td>");
 			}*/
-			out.println("<input type='hidden' class='itemNo itemNoCategory_" + itemRow.get(1).toString().trim() + "' id='itemNo_" + itemRow.get(0).toString().trim() + "' name='itemNo'>");
-			out.println("<td class='itemCheck itemCheckCategory_" + itemRow.get(1).toString().trim() + "' id='itemCheck_" + itemRow.get(0).toString().trim() + "'><input type='checkbox' id='itemChk_" + itemRow.get(0).toString().trim() + "' name='itemCheck' value='" + itemRow.get(3).toString().trim() + "' checked></td>");
+			out.println("<input type='hidden' class='itemNo itemNoCategory_" + itemRow.get(1).toString().trim() + "' id='itemNo_" + itemRow.get(0).toString().trim() + "' name='ITEM_NO'>");
+			out.println("<td class='itemCheck itemCheckCategory_" + itemRow.get(1).toString().trim() + "' id='itemCheck_" + itemRow.get(0).toString().trim() + "'><input type='checkbox' id='itemChk_" + itemRow.get(0).toString().trim() + "' name='ITEM_CHECK' value='" + itemRow.get(3).toString().trim() + "' checked></td>");
 			out.println("<td class='itemName' id='item_" + itemRow.get(0).toString().trim() + "'>" + itemRow.get(3).toString().trim() + "</td>");
-			out.println("<td class='itemPrice itemPrice_c" + itemRow.get(0).toString().trim() + "' id='itemPr_" + itemRow.get(0).toString().trim() + "'><input id='itemPrice_" + itemRow.get(0).toString().trim() + "' name='itemPrice' type='number' value="+ itemRow.get(4).toString().trim() + "><input type ='hidden' name='itemPrice_default' id='itemPriceDefault_" + itemRow.get(0).toString().trim() + "' value="+ itemRow.get(4).toString().trim() + "></td>");
+			out.println("<td class='itemPrice itemPrice_c" + itemRow.get(0).toString().trim() + "' id='itemPr_" + itemRow.get(0).toString().trim() + "'><input id='itemPrice_" + itemRow.get(0).toString().trim() + "' name='ITEM_PRICE' type='number' value="+ itemRow.get(4).toString().trim() + "><input type ='hidden' name='ITEM_PRICEDEFAULT' id='itemPriceDefault_" + itemRow.get(0).toString().trim() + "' value="+ itemRow.get(4).toString().trim() + "></td>");
 			out.println("<td><div class='defaultBtn' onclick=\"defaultPrice('" + itemRow.get(0).toString().trim() + "')\">Default</div></td>");
 			out.println("</tr>");
 			shocate = itemRow.get(2).toString().trim();
