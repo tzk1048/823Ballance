@@ -4,12 +4,15 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.sql.ResultSet;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import szk.OraDbConnect;
 
@@ -28,57 +31,244 @@ public class Keikaku extends HttpServlet {
         // TODO Auto-generated constructor stub
     }
     
+	//-------------------------------------
+	// 変数定義
+	//-------------------------------------
+    
     static String userid = "000000";
     static OraDbConnect oraConnect =null;
+    
+  //--------------------------------------------------------------------------------
+  	//
+  	// データ引渡用構造体
+  	//
+  	//--------------------------------------------------------------------------------
+  	class DataHolder {
+  		
+  		//-------------------------------------
+  		// 変数定義
+  		//-------------------------------------
+  		public Hashtable<String, String> htParam    = null;   // リクエストバッファ
+  		public String stSysDate     = "";     // システム日付
+  		public String stSysTime     = "";     // システム時間
+  		
+  		
+  		//-------------------------------------
+  		// コンストラクタ
+  		//-------------------------------------
+  		public DataHolder() {
+  			
+  			htParam   = new Hashtable<>();
+  			stSysDate = "" ;
+  			stSysTime = "" ;
+  			
+  		}
+  		
+  		//-------------------------------------
+  		// システム日付をセット
+  		//-------------------------------------
+  		public void setSysDateTime(String stSysDateTime) {
+  			
+  			stSysDate = stSysDateTime.substring(0,8);
+  			stSysDate = stSysDateTime.substring(8,14);
+  			
+  		}
+
+  		//-------------------------------------
+  		// リクエストから文字列を取得
+  		//-------------------------------------
+  		public String getString(String stKey) {
+
+  			if (htParam.get(stKey.toUpperCase()) == null) {
+  				return "";
+  			}
+
+  			if (htParam.get(stKey.toUpperCase()) instanceof String == false) {
+  				return "";
+  			}
+
+  			return ((String)htParam.get(stKey.toUpperCase())).trim();
+  		}
+
+  		//-------------------------------------
+  		// リクエストに文字列をセット
+  		//-------------------------------------
+  		public void SetString(String stKey, String stData) {
+
+  			htParam.put(stKey.toUpperCase(), stData);
+
+  		}
+
+  	}
+
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
+  	
+	 //--------------------------------------------------------------------------------
+	 //
+	 // GETによるリクエスト受付処理
+	 //
+	 //--------------------------------------------------------------------------------
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		//response.getWriter().append("Served at: ").append(request.getContextPath());
-		this.setRespHeader(response);
-		PrintWriter out = null;
 		
-		out = this.getRespWriter(response);
+		System.out.println("doGet");
 		
+		//-------------------------------------
+		// DB接続
+		//-------------------------------------
 		oraConnect = new OraDbConnect("823surface", "XEPDB1", "kaihatu", "tsbtzkstshkr");
-        if (oraConnect.OraConnect()) {
-            System.out.println("接続失敗");
-        }
-        //ResultSet resultSet = oraConnect.ExcecuteQuery("SELECT * FROM TEST");
-        //Vector<Vector<String>> vec = oraConnect.getSqlResult(resultSet);
-        
-        writeHtml(out);
-        
+		if (oraConnect.OraConnect()) {
+			System.out.println("接続失敗");
+		}
+		 //ResultSet resultSet = oraConnect.ExcecuteQuery("SELECT * FROM TEST");
+		 //Vector<Vector<String>> vec = oraConnect.getSqlResult(resultSet);
+
+		//-------------------------------------
+		// セッション情報の設定
+		//-------------------------------------
+		HttpSession htpsTrans = this.setHttpSession(request);
+
+		//-------------------------------------
+		// 変数定義
+		//-------------------------------------
+		PrintWriter out = null;
+		DataHolder dhHtml = new DataHolder();
+
+		//-------------------------------------
+		// 初期処理
+		//-------------------------------------
+		this.setRespHeader(response);
+		out = this.getRespWriter(response);
+		dhHtml.htParam = this.getReqParam(request);
+				
+		//-------------------------------------
+		// ユーザ権限のチェック
+		//-------------------------------------
+		userid = "000000";
+				
+		//-------------------------------------
+		// セッション情報の取得
+		//-------------------------------------
+		this.getSessionParam(htpsTrans, dhHtml.htParam);
+		        
+		//-------------------------------------
+		// HTMLの編集・出力
+		//-------------------------------------
+		setHtmlDefault(out, dhHtml);
+		//setHtmlDefault(out);
 		out.close();
+				
+		//-------------------------------------
+		// DB切断
+		//-------------------------------------
+		if (oraConnect != null) {
+			oraConnect.CloseDB();
+		}
+
 	}
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
+	
+	 //--------------------------------------------------------------------------------
+	 //
+	 // POSTによるリクエスト受付処理
+	 //
+	 //--------------------------------------------------------------------------------
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		//doGet(request, response);
 		
+		System.out.println("doPost");		
 		//response.getWriter().append("Served at: ").append(request.getContextPath());
-				this.setRespHeader(response);
-				PrintWriter out = null;
+		//-------------------------------------
+		// DB接続
+		//-------------------------------------
+		oraConnect = new OraDbConnect("823surface", "XEPDB1", "kaihatu", "tsbtzkstshkr");
+		if (oraConnect.OraConnect()) {
+			System.out.println("接続失敗");
+		}
+		 //ResultSet resultSet = oraConnect.ExcecuteQuery("SELECT * FROM TEST");
+		 //Vector<Vector<String>> vec = oraConnect.getSqlResult(resultSet);
+
+		//-------------------------------------
+		// セッション情報の設定
+		//-------------------------------------
+		HttpSession htpsTrans = this.setHttpSession(request);
+
+		//-------------------------------------
+		// 変数定義
+		//-------------------------------------
+		PrintWriter out = null;
+		DataHolder dhHtml = new DataHolder();
+
+		//-------------------------------------
+		// 初期処理
+		//-------------------------------------
+		this.setRespHeader(response);
+		out = this.getRespWriter(response);
+		dhHtml.htParam = this.getReqParam(request);
 				
-				out = this.getRespWriter(response);
+		//-------------------------------------
+		// ユーザ権限のチェック
+		//-------------------------------------
+		userid = "000000";
 				
-				oraConnect = new OraDbConnect("823surface", "XEPDB1", "kaihatu", "tsbtzkstshkr");
-		        if (oraConnect.OraConnect()) {
-		            System.out.println("接続失敗");
-		        }
-		        //ResultSet resultSet = oraConnect.ExcecuteQuery("SELECT * FROM TEST");
-		        //Vector<Vector<String>> vec = oraConnect.getSqlResult(resultSet);
+		//-------------------------------------
+		// セッション情報の取得
+		//-------------------------------------
+		this.getSessionParam(htpsTrans, dhHtml.htParam);
 		        
-		        writeHtml(out);
-		        
-				out.close();
+		//-------------------------------------
+		// HTMLの編集・出力
+		//-------------------------------------
+		setHtmlDefault(out, dhHtml);
+		//setHtmlDefault(out);
+		out.close();
+				
+		//-------------------------------------
+		// DB切断
+		//-------------------------------------
+		if (oraConnect != null) {
+			oraConnect.CloseDB();
+		}
 	}
 	
+	 //--------------------------------------------------------------------------------
+	 //
+	 // セッションの設定
+	 //
+	 //--------------------------------------------------------------------------------
+	HttpSession setHttpSession (HttpServletRequest req) {
+		
+		//-------------------------------------
+		// 変数定義
+		//-------------------------------------
+		HttpSession httpTrans = null;
+		
+		//-------------------------------------
+		// セッション情報尾設定
+		//-------------------------------------
+		httpTrans = req.getSession(true);
+		try {
+			httpTrans.setMaxInactiveInterval(3000);
+		} catch (NoSuchMethodError ex) {
+			;
+		}
+		return httpTrans;
+	}
+	
+	
+	 //--------------------------------------------------------------------------------
+	 //
+	 // レスポンスヘッダの設定
+	 //
+	 //--------------------------------------------------------------------------------
 	private void setRespHeader(HttpServletResponse response) {
 		// TODO 自動生成されたメソッド・スタブ
 		//文字コードの設定
@@ -88,12 +278,22 @@ public class Keikaku extends HttpServlet {
 		response.setHeader("Pragma", "no-cache");
 	}
 	
+	 //--------------------------------------------------------------------------------
+	 //
+	 // HTMLライタの取得
+	 //
+	 //--------------------------------------------------------------------------------
 	PrintWriter getRespWriter(HttpServletResponse response) {
-		//変数定義
+		
+		//-------------------------------------
+		// 変数定義
+		//-------------------------------------
 		String encoding ="";
 		OutputStreamWriter osw = null;
 		
-		//HTMLライタの設定
+		//-------------------------------------
+		// HTMLライタの設定
+		//-------------------------------------
 		encoding = response.getCharacterEncoding();
 		try {
 			osw = new OutputStreamWriter(response.getOutputStream(), encoding);
@@ -104,7 +304,73 @@ public class Keikaku extends HttpServlet {
 		return new PrintWriter(osw, true);
 	}
 	
-	boolean writeHtml(PrintWriter out) {
+	
+	 //--------------------------------------------------------------------------------
+	 //
+	 // HTMLからのリクエスト抽出
+	 //
+	 //--------------------------------------------------------------------------------
+	Hashtable<String, String> getReqParam(HttpServletRequest req) throws IOException {
+		
+		//-------------------------------------
+		// 変数定義
+		//-------------------------------------
+		Hashtable<String, String> htParam = new Hashtable<>();
+		Enumeration<?> enmKeys = req.getParameterNames();
+		
+		//-------------------------------------
+		// リクエストから名前と値を抽出
+		//-------------------------------------
+		while (enmKeys.hasMoreElements()) {
+			String stKeys = (String)enmKeys.nextElement();
+			String stCnvWord = req.getParameterValues(stKeys)[0];
+			String stCnvHalf = stCnvWord;
+			htParam.put(stKeys, stCnvHalf).toUpperCase();
+		}
+		
+		return htParam;
+	}
+	
+	//--------------------------------------------------------------------------------
+	//
+	// HTMLからのリクエスト抽出
+	//
+	//--------------------------------------------------------------------------------
+	void getSessionParam(HttpSession htpsTrans, Hashtable<String, String> htParam) {
+		
+		//-------------------------------------
+		// セッション情報が空ならば抜ける
+		//-------------------------------------
+		if (htpsTrans.getAttributeNames() == null) {
+			return;
+		}
+		
+		//-------------------------------------
+		// 変数定義
+		//-------------------------------------
+		String stKey = "";
+		String stVal = "";
+		Enumeration<?> ensSnKeys = htpsTrans.getAttributeNames();
+		
+		//-------------------------------------
+		// セッション情報を抽出
+		//-------------------------------------
+		while (ensSnKeys.hasMoreElements()) {
+			stKey = (String)ensSnKeys.nextElement();
+			stVal = (String)htpsTrans.getAttribute(stKey);
+			
+			htParam.put(stKey.toUpperCase(), stVal);
+			htpsTrans.removeAttribute(stKey);
+		}
+	}
+	
+	 //--------------------------------------------------------------------------------
+	 //
+	 // HTML編集
+	 //
+	 //--------------------------------------------------------------------------------
+	void setHtmlDefault(PrintWriter out, DataHolder dhHtml) {
+    //void setHtmlDefault(PrintWriter out) {
 		
 		String setSql = "";
 		ResultSet resultSet = null;
@@ -156,6 +422,7 @@ public class Keikaku extends HttpServlet {
 		out.println("<p id='test'>aiueo</p>");
 		
 		//out.println(item);
+		out.println("<input type='hidden' id='formtest' name='FORMTEST' VALUE='TEST'>");
 		
 
 		for (int i = 0; i < income.size(); i++) {
@@ -220,7 +487,7 @@ public class Keikaku extends HttpServlet {
 		out.println("</body>");
 		out.println("</html>");
 		
-		return false;
+		return;
 	}
 
 
