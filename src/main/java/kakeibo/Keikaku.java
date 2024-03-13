@@ -37,6 +37,8 @@ public class Keikaku extends HttpServlet {
     
     static String userid = "000000";
     static OraDbConnect oraConnect =null;
+    static String[] categorys = null;
+    static String[][] items = null;
     
   //--------------------------------------------------------------------------------
   	//
@@ -93,7 +95,7 @@ public class Keikaku extends HttpServlet {
   		//-------------------------------------
   		// リクエストに文字列をセット
   		//-------------------------------------
-  		public void SetString(String stKey, String stData) {
+  		public void setString(String stKey, String stData) {
 
   			htParam.put(stKey.toUpperCase(), stData);
 
@@ -158,6 +160,7 @@ public class Keikaku extends HttpServlet {
 		//-------------------------------------
 		// HTMLの編集・出力
 		//-------------------------------------
+		getItamTable(dhHtml);
 		setHtmlDefault(out, dhHtml);
 		//setHtmlDefault(out);
 		out.close();
@@ -325,15 +328,16 @@ public class Keikaku extends HttpServlet {
 			String stKeys = (String)enmKeys.nextElement();
 			String stCnvWord = req.getParameterValues(stKeys)[0];
 			String stCnvHalf = stCnvWord;
-			htParam.put(stKeys, stCnvHalf).toUpperCase();
+			htParam.put(stKeys, stCnvHalf.toUpperCase());
 		}
+		
 		
 		return htParam;
 	}
 	
 	//--------------------------------------------------------------------------------
 	//
-	// HTMLからのリクエスト抽出
+	// セッション情報の取得
 	//
 	//--------------------------------------------------------------------------------
 	void getSessionParam(HttpSession htpsTrans, Hashtable<String, String> htParam) {
@@ -419,7 +423,8 @@ public class Keikaku extends HttpServlet {
 		out.println("<body onload='load()'>");
 		out.println("<h1>HelloWorld</h1>");
 		out.println("<form name='FORMMAIN' method='post' target='_self'>");
-		out.println("<p id='test'>aiueo</p>");
+		out.println("<p id='test'>aiueo" + dhHtml.getString("FORMTEST") + "</p>");
+		out.println("<p>" + dhHtml.getString("ITEMCATEID") + "</p>");
 		
 		//out.println(item);
 		out.println("<input type='hidden' id='formtest' name='FORMTEST' VALUE='TEST'>");
@@ -481,6 +486,10 @@ public class Keikaku extends HttpServlet {
 			out.println("</tr>");
 			shocate = itemRow.get(2).toString().trim();
 		}
+		out.println("</table>");
+		out.println("</div>");
+		
+		out.println("<a href='#' onclick='document.FORMMAIN.submit();'>登録</a>");
 		
 		out.println("</form>");
 		out.println("<script type='text/javascript' src='js/keikaku.js'></script>");
@@ -488,6 +497,72 @@ public class Keikaku extends HttpServlet {
 		out.println("</html>");
 		
 		return;
+	}
+	
+	
+	//--------------------------------------------------------------------------------
+	//
+	// アイテムテーブル取得
+	//
+	//--------------------------------------------------------------------------------
+	boolean getItamTable(DataHolder dhHtml) {
+		
+		String setSql = "";
+		ResultSet resultSet = null;
+		String incomeID = "A0001";
+		
+		resultSet = null;
+        setSql = "";
+        setSql = " select アイテムID, i.カテゴリID, カテゴリ, アイテム, 金額 ";
+        setSql = setSql + " from K_アイテムマスタ  i,K_カテゴリマスタ c ";
+        setSql = setSql + " where i.ユーザID = c.ユーザID ";
+        setSql = setSql + " and i.カテゴリID = c.カテゴリID ";
+        setSql = setSql + " and i.ユーザID = '" + userid + "' ";
+        setSql = setSql + " and i.カテゴリID = '" + incomeID + "'";
+        
+        resultSet = oraConnect.ExcecuteQuery(setSql);
+        Vector<Vector<String>> income = oraConnect.getSqlResult(resultSet);
+        
+        
+        dhHtml.setString("ITEMCATEID", incomeID);
+		dhHtml.setString("INCOME", ((Vector<String>)income.get(0)).toString());
+
+
+		for (int i = 0; i < income.size(); i++) {
+			Vector<String> incomeRow = (Vector<String>)income.get(i);
+
+			dhHtml.setString("INCOMEITEMID_" + (i+1),incomeRow.get(0).toString().trim());
+			dhHtml.setString("INCOMEITEMNAME_" + (i+1), incomeRow.get(1).toString().trim());
+			dhHtml.setString("INCOMEPRICE_" + (i+1), incomeRow.get(2).toString().trim());
+		}
+        
+        
+        
+        
+        resultSet = null;
+        setSql="";
+        setSql  = setSql + "select アイテムID, i.カテゴリID as カテゴリID, カテゴリ, アイテム, 金額";
+        setSql  = setSql + " from K_アイテムマスタ  i,K_カテゴリマスタ c";
+        setSql  = setSql + " where i.ユーザID = c.ユーザID ";
+        setSql  = setSql + " and i.カテゴリID = c.カテゴリID ";
+        setSql  = setSql + " and i.ユーザID = '" + userid + "' ";
+        setSql  = setSql + " and i.カテゴリID <> 'A0001'";
+        setSql  = setSql + " and i.カテゴリID <> 'C0001'";
+        setSql  = setSql + "union ";
+        setSql  = setSql + "select 'C0001' as アイテムID, i.カテゴリID as カテゴリID, カテゴリ, '年額支払い', AVG(金額)";
+        setSql  = setSql + " from K_アイテムマスタ  i,K_カテゴリマスタ c";
+        setSql  = setSql + " where i.ユーザID = c.ユーザID ";
+        setSql  = setSql + " and i.カテゴリID = c.カテゴリID ";
+        setSql  = setSql + " and i.ユーザID = '" + userid + "' ";
+        setSql  = setSql + " and i.カテゴリID = 'C0001'";
+        setSql  = setSql + " group by i.カテゴリID, カテゴリ";
+        setSql  = setSql + " order by カテゴリID, アイテムID";
+
+        
+        resultSet = oraConnect.ExcecuteQuery(setSql);
+        //Vector<Vector<String>> item = oraConnect.getSqlResult(resultSet);
+
+		return false;
 	}
 
 
