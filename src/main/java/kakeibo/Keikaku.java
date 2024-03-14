@@ -4,6 +4,10 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.sql.ResultSet;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -37,8 +41,10 @@ public class Keikaku extends HttpServlet {
     
     static String userid = "000000";
     static OraDbConnect oraConnect =null;
-    static String[] categorys = null;
-    static String[][] items = null;
+    static String[][] categorys = null;
+    static Vector<Vector<String>> items = new Vector<>();
+    static String[] incomeItems = null;
+
     
   //--------------------------------------------------------------------------------
   	//
@@ -72,8 +78,16 @@ public class Keikaku extends HttpServlet {
   		public void setSysDateTime(String stSysDateTime) {
   			
   			stSysDate = stSysDateTime.substring(0,8);
-  			stSysDate = stSysDateTime.substring(8,14);
+  			stSysTime = stSysDateTime.substring(8,14);
   			
+  		}
+  		
+  		public String getSysDate() {
+  			return stSysDate;
+  		}
+  		
+  		public String getSysTime()  {
+  			return stSysTime;
   		}
 
   		//-------------------------------------
@@ -156,10 +170,25 @@ public class Keikaku extends HttpServlet {
 		// セッション情報の取得
 		//-------------------------------------
 		this.getSessionParam(htpsTrans, dhHtml.htParam);
+		
+		//-------------------------------------
+		// ユーザ定義
+		//-------------------------------------
 		        
 		//-------------------------------------
 		// HTMLの編集・出力
 		//-------------------------------------
+		
+		//日付取得
+		Date nowDate = new Date();
+        SimpleDateFormat sdf1
+        = new SimpleDateFormat("yyyyMMddHHmmss");
+        String formatNowDate = sdf1.format(nowDate);
+        dhHtml.setSysDateTime(formatNowDate);
+		
+		//登録FLG
+		dhHtml.setString("TOROKUFLG", "1");
+		
 		getItamTable(dhHtml);
 		setHtmlDefault(out, dhHtml);
 		//setHtmlDefault(out);
@@ -424,7 +453,37 @@ public class Keikaku extends HttpServlet {
 		out.println("<h1>HelloWorld</h1>");
 		out.println("<form name='FORMMAIN' method='post' target='_self'>");
 		out.println("<p id='test'>aiueo" + dhHtml.getString("FORMTEST") + "</p>");
-		out.println("<p>" + dhHtml.getString("ITEMCATEID") + "</p>");
+		out.println("<p>" + dhHtml.getString("TOROKUFLG") + "</p>");
+		
+		try {
+			
+			SimpleDateFormat sdFormat = new SimpleDateFormat("yyyyMM");
+            Date date = sdFormat.parse(dhHtml.getSysDate().substring(0, 6));
+            
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            
+            
+            out.println("<select name='KEIKAKUDATE'>");
+            
+            calendar.add(Calendar.MONTH, 4);
+            out.println("<option value='" + sdFormat.format(calendar.getTime()) + "'>" + sdFormat.format(calendar.getTime()) + "</option>");
+            calendar.add(Calendar.MONTH, -1);
+            out.println("<option value='" + sdFormat.format(calendar.getTime()) + "'>" + sdFormat.format(calendar.getTime()) + "</option>");
+            calendar.add(Calendar.MONTH, -1);
+            out.println("<option value='" + sdFormat.format(calendar.getTime()) + "'>" + sdFormat.format(calendar.getTime()) + "</option>");
+            calendar.add(Calendar.MONTH, -1);
+            out.println("<option value='" + sdFormat.format(calendar.getTime()) + "' selected>" + sdFormat.format(calendar.getTime()) + "</option>");
+            calendar.add(Calendar.MONTH, -1);
+            out.println("<option value='" + sdFormat.format(calendar.getTime()) + "'>" + sdFormat.format(calendar.getTime()) + "</option>");
+            
+    		out.println("</select>");
+    		
+		} catch(Exception e) {
+			System.out.println("日付変換エラー");
+		}
+		
+		out.println("<input type='hidden'name='TOROKUFLG' value='" + dhHtml.getString("TOROKUFLG") + "'>");
 		
 		//out.println(item);
 		out.println("<input type='hidden' id='formtest' name='FORMTEST' VALUE='TEST'>");
@@ -500,6 +559,7 @@ public class Keikaku extends HttpServlet {
 	}
 	
 	
+	@SuppressWarnings("null")
 	//--------------------------------------------------------------------------------
 	//
 	// アイテムテーブル取得
@@ -526,41 +586,99 @@ public class Keikaku extends HttpServlet {
         
         dhHtml.setString("ITEMCATEID", incomeID);
 		dhHtml.setString("INCOME", ((Vector<String>)income.get(0)).toString());
+		
+		incomeItems = new String[income.size()];
 
 
 		for (int i = 0; i < income.size(); i++) {
 			Vector<String> incomeRow = (Vector<String>)income.get(i);
 
+			incomeItems[i]=incomeRow.get(0).toString().trim();
 			dhHtml.setString("INCOMEITEMID_" + (i+1),incomeRow.get(0).toString().trim());
 			dhHtml.setString("INCOMEITEMNAME_" + (i+1), incomeRow.get(1).toString().trim());
 			dhHtml.setString("INCOMEPRICE_" + (i+1), incomeRow.get(2).toString().trim());
 		}
-        
-        
-        
+		
+		System.out.println(Arrays.toString(incomeItems));
         
         resultSet = null;
-        setSql="";
-        setSql  = setSql + "select アイテムID, i.カテゴリID as カテゴリID, カテゴリ, アイテム, 金額";
-        setSql  = setSql + " from K_アイテムマスタ  i,K_カテゴリマスタ c";
-        setSql  = setSql + " where i.ユーザID = c.ユーザID ";
-        setSql  = setSql + " and i.カテゴリID = c.カテゴリID ";
-        setSql  = setSql + " and i.ユーザID = '" + userid + "' ";
-        setSql  = setSql + " and i.カテゴリID <> 'A0001'";
-        setSql  = setSql + " and i.カテゴリID <> 'C0001'";
-        setSql  = setSql + "union ";
-        setSql  = setSql + "select 'C0001' as アイテムID, i.カテゴリID as カテゴリID, カテゴリ, '年額支払い', AVG(金額)";
-        setSql  = setSql + " from K_アイテムマスタ  i,K_カテゴリマスタ c";
-        setSql  = setSql + " where i.ユーザID = c.ユーザID ";
-        setSql  = setSql + " and i.カテゴリID = c.カテゴリID ";
-        setSql  = setSql + " and i.ユーザID = '" + userid + "' ";
-        setSql  = setSql + " and i.カテゴリID = 'C0001'";
-        setSql  = setSql + " group by i.カテゴリID, カテゴリ";
-        setSql  = setSql + " order by カテゴリID, アイテムID";
+        setSql  = "";
+        setSql  = setSql + "";
+        setSql  = setSql + "select i.カテゴリID, カテゴリ ";
+        setSql  = setSql + " from K_アイテムマスタ i, K_カテゴリマスタ c ";
+        setSql  = setSql + "where i.カテゴリID = c.カテゴリID";
+        setSql  = setSql + " and i.カテゴリID <> 'A0001' ";
+        setSql  = setSql + " and i.カテゴリID <> 'C0001' ";
+        setSql  = setSql + "group by i.カテゴリID, カテゴリ ";
+        setSql  = setSql + "order by i.カテゴリID ";
 
         
+        
         resultSet = oraConnect.ExcecuteQuery(setSql);
-        //Vector<Vector<String>> item = oraConnect.getSqlResult(resultSet);
+        Vector<Vector<String>> category = oraConnect.getSqlResult(resultSet);
+        
+        categorys = new String[category.size()][2];
+
+
+		for (int i = 0; i < category.size(); i++) {
+			Vector<String> categoryRow = (Vector<String>)category.get(i);
+
+			categorys[i][0]=categoryRow.get(0).toString().trim();
+			categorys[i][1]=categoryRow.get(1).toString().trim();
+
+		}
+
+		for (int i=0;i < categorys.length; i++) {
+			resultSet = null;
+	        setSql  = "";
+	        setSql  = setSql + "select アイテムID, カテゴリID, アイテム, 金額 ";
+	        setSql  = setSql + " from K_アイテムマスタ ";
+	        setSql  = setSql + "where ユーザID = '" + userid + "' ";
+	        setSql  = setSql + " and カテゴリID = '" + categorys[i][0] + "' ";
+	        setSql  = setSql + "order by カテゴリID, アイテムID";
+	        
+	        resultSet = oraConnect.ExcecuteQuery(setSql);
+	        Vector<Vector<String>> item = oraConnect.getSqlResult(resultSet);
+	        Vector<String> itemID = null;
+	        
+	        for (int k=0;k<item.size();k++) {
+	        	Vector<String> itemRow = (Vector<String>)item.get(k);
+	        	itemID = new Vector<>();
+	        	itemID.add(itemRow.get(0).toString().trim());
+				dhHtml.setString("ITEMID_" + (k+1),itemRow.get(0).toString().trim());
+				dhHtml.setString("ITEMCATEGORY_" + (k+1), itemRow.get(1).toString().trim());
+				dhHtml.setString("ITEMNAME_" + (k+1), itemRow.get(1).toString().trim());
+				dhHtml.setString("PRICE_" + (k+1), itemRow.get(2).toString().trim());
+	        }
+	        
+	        items.add(itemID);
+
+			
+		}
+		
+		System.out.println(items);
+		
+		
+		setSql  = "";
+        setSql  = setSql + "select 'C0001' as アイテムID, 'C0001' as カテゴリID, '年額' as カテゴリ, '年額支払い' as アイテム, AVG(金額)";
+        setSql  = setSql + " from K_アイテムマスタ";
+        setSql  = setSql + " where ユーザID = '" + userid + "' ";
+        setSql  = setSql + " group by カテゴリID";
+
+        
+        System.out.println(setSql);
+        
+        resultSet = oraConnect.ExcecuteQuery(setSql);
+        Vector<Vector<String>> yearpay = oraConnect.getSqlResult(resultSet);
+        Vector<String> yearpRow = (Vector<String>)yearpay.get(0);
+        
+        dhHtml.setString("NENITEMID",yearpRow.get(0).toString().trim());
+        dhHtml.setString("NENITEMCATEID", yearpRow.get(1).toString().trim());
+		dhHtml.setString("NENITEMCATEGORY", yearpRow.get(2).toString().trim());
+		dhHtml.setString("NENITEMNAME", yearpRow.get(3).toString().trim());
+		dhHtml.setString("NENPRICE", yearpRow.get(4).toString().trim());
+        
+        
 
 		return false;
 	}
