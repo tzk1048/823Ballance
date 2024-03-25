@@ -405,10 +405,10 @@ public class Keikaku extends HttpServlet {
 	void setHtmlDefault(PrintWriter out, DataHolder dhHtml) {
     //void setHtmlDefault(PrintWriter out) {
 		
-		String setSql = "";
-		ResultSet resultSet = null;
+		//String setSql = "";
+		//ResultSet resultSet = null;
 		
-		resultSet = null;
+		/*resultSet = null;
         setSql = "";
         setSql = " select アイテムID, i.カテゴリID, カテゴリ, アイテム, 金額 ";
         setSql = setSql + " from K_アイテムマスタ  i,K_カテゴリマスタ c ";
@@ -418,9 +418,9 @@ public class Keikaku extends HttpServlet {
         setSql = setSql + " and i.カテゴリID = 'A0001'";
         
         resultSet = oraConnect.ExcecuteQuery(setSql);
-        Vector<Vector<String>> income = oraConnect.getSqlResult(resultSet);
+        Vector<Vector<String>> income = oraConnect.getSqlResult(resultSet);*/
         
-        resultSet = null;
+        /*resultSet = null;
         setSql="";
         setSql  = setSql + "select アイテムID, i.カテゴリID as カテゴリID, カテゴリ, アイテム, 金額";
         setSql  = setSql + " from K_アイテムマスタ  i,K_カテゴリマスタ c";
@@ -441,7 +441,7 @@ public class Keikaku extends HttpServlet {
 
         
         resultSet = oraConnect.ExcecuteQuery(setSql);
-        Vector<Vector<String>> item = oraConnect.getSqlResult(resultSet);
+        Vector<Vector<String>> item = oraConnect.getSqlResult(resultSet);*/
 
         
 		out.println("<html>");
@@ -454,6 +454,13 @@ public class Keikaku extends HttpServlet {
 		out.println("<form name='FORMMAIN' method='post' target='_self'>");
 		out.println("<p id='test'>aiueo" + dhHtml.getString("FORMTEST") + "</p>");
 		out.println("<p>" + dhHtml.getString("TOROKUFLG") + "</p>");
+		out.println("<p>GET:" + dhHtml.getString("KEIKAKUDATE") + "</p>");
+		
+		int inrow = StrToInt(dhHtml.getString("INROW"));
+		
+		for (int i=0; i < inrow; i++) {
+			out.println();
+		}
 		
 		try {
 			
@@ -483,70 +490,105 @@ public class Keikaku extends HttpServlet {
 			System.out.println("日付変換エラー");
 		}
 		
-		out.println("<input type='hidden'name='TOROKUFLG' value='" + dhHtml.getString("TOROKUFLG") + "'>");
+		out.println("<input type='hidden' name='TOROKUFLG' value='" + dhHtml.getString("TOROKUFLG") + "'>");
 		
 		//out.println(item);
 		out.println("<input type='hidden' id='formtest' name='FORMTEST' VALUE='TEST'>");
 		
+		int row = 1;
+		
+		//収入
+		int incomeCnt = StrToInt(dhHtml.getString("INCOMECOUNT"));
+		
+		out.println("<input type='hidden' name='INCATEID_" + row + "' value='" + dhHtml.getString("INCOMECATEID") + "'>");
+		out.println("<input type='hidden' name='INCATENAME_" + row + "' value='" + dhHtml.getString("INCOMECATENAME") + "'>");
+		out.println("<input type='hidden' name='INTYPE_" + row + "' value='S'>");
+		
+		out.println("<table class='itemRowSum' id='itemRowSum_" + dhHtml.getString("INCOMECATEID") + "'><tr>");
+		out.println("<td class='itemSumName'>" + dhHtml.getString("INCOMECATENAME") + "合計</td colspan='4'>");
+		out.println("<td id='itemSumPrice_" + dhHtml.getString("INCOMECATEID") + "'>0</td>");
+		out.println("<td class='itemSumBtn' id='itemSumBtn_" + dhHtml.getString("INCOMECATEID") + "' onclick=\"itemHidden('" + dhHtml.getString("INCOMECATEID") + "')\">-</td>");
+		out.println("</tr></table>");
+		out.println("<div class='itemTablediv' id='itemTablediv_" + dhHtml.getString("INCOMECATEID") + "' style='display:block'>");
+		out.println("<table class='itemTable' id='itemTable_" + dhHtml.getString("INCOMECATEID") + "'>");
+		out.println("<tr class='itemRowTitle'><td></td><td>アイテムID</td><td>アイテム</td><td>金額</td></tr>");
 
-		for (int i = 0; i < income.size(); i++) {
+		for (int i = 0; i < incomeCnt; i++) {
 			
-			Vector<String> incomeRow = (Vector<String>)income.get(i);
+			row++;
 			
-			if (i==0) {
-				out.println("<table class='itemRowSum' id='itemRowSum_" + incomeRow.get(1).toString().trim() + "'><tr><td class='itemSumName'>" + incomeRow.get(2).toString().trim() + "合計</td colspan='4'><td id='itemSumPrice_" + incomeRow.get(1).toString().trim() + "'>0</td><td class='itemSumBtn' id='itemSumBtn_" + incomeRow.get(1).toString().trim() + "' onclick=\"itemHidden('" + incomeRow.get(1).toString().trim() + "')\">-</td></tr></table>");
-				out.println("<div class='itemTablediv' id='itemTablediv_" + incomeRow.get(1).toString().trim() + "' style='display:block'>");
-				out.println("<table class='itemTable' id='itemTable_" + incomeRow.get(1).toString().trim() + "'>");
-				out.println("<tr class='itemRowTitle'><td></td><td>アイテムID</td><td>アイテム</td><td>金額</td></tr>");
-			}
+			out.println("<tr class='itemRowDetail' id='itemRowTr_" + dhHtml.getString("INCOMEITEMID_" + (i+1)) + "'>");
 			
+			out.println("<input type='hidden' name='INCATEID_" + row + "' value='" + dhHtml.getString("INCOMECATEID") + "'>");
+			out.println("<input type='hidden' name='INCATENAME_" + row + "' value='" + dhHtml.getString("INCOMECATENAME") + "'>");
+			out.println("<input type='hidden' name='INTYPE_" + row + "' value='I'>");
 			
-			out.println("<tr class='itemRowDetail' id='itemRowTr_" + incomeRow.get(0).toString().trim() + "'>");
-			/*for (int j = 0; j < itemRow.size(); j++) {
-				out.println("<td>" + incomeRow.get(j).toString().trim() + "</td>");
-			}*/
-			out.println("<input type='hidden' class='itemNo itemNoCategory_" + incomeRow.get(1).toString().trim() + "' id='itemNo_" + incomeRow.get(0).toString().trim() + "' name='ITEM_NO'>");
-			out.println("<td class='itemCheck itemCheckCategory_" + incomeRow.get(1).toString().trim() + "' id='itemCheck_" + incomeRow.get(0).toString().trim() + "'><input type='checkbox' id='itemChk_" + incomeRow.get(0).toString().trim() + "' name='ITEM_CHECK' value='" + incomeRow.get(3).toString().trim() + "' checked></td>");
-			out.println("<td class='itemName' id='item_" + incomeRow.get(0).toString().trim() + "'>" + incomeRow.get(3).toString().trim() + "</td>");
-			out.println("<td class='itemPrice itemPrice_c" + incomeRow.get(0).toString().trim() + "' id='itemPr_" + incomeRow.get(0).toString().trim() + "'><input id='itemPrice_" + incomeRow.get(0).toString().trim() + "' name='ITEM_PRICE' type='number' value="+ incomeRow.get(4).toString().trim() + "><input type ='hidden' name='ITEM_PRICEDEFAULT' id='itemPriceDefault_" + incomeRow.get(0).toString().trim() + "' value="+ incomeRow.get(4).toString().trim() + "></td>");
-			out.println("<td><div class='defaultBtn' onclick=\"defaultPrice('" + incomeRow.get(0).toString().trim() + "')\">Default</div></td>");
+			out.println("<input type='hidden' id='INITEMNO_" + dhHtml.getString("INCOMEITEMID_" + (i+1)) + "' name='INITEMNO_" + row + "' value='" + dhHtml.getString("INCOMEITEMID_" + (i+1)) + "'>");
+			out.println("<input type='hidden' id='INITEMNAME_" + dhHtml.getString("INCOMEITEMID_" + (i+1)) + "' name='INITEMNAME_" + row + "' value='" + dhHtml.getString("INCOMEITEMNAME_" + (i+1)) + "'>");
+			
+			out.println("<td class='itemCheck itemCheckCategory_" + dhHtml.getString("INCOMECATEID") + "' id='itemCheck_" + dhHtml.getString("INCOMEITEMID_" + (i+1)) + "'><input type='checkbox' id='itemChk_" + dhHtml.getString("INCOMEITEMID_" + (i+1)) + "' name='INITEMCHECK_" + row + "' value='1' checked></td>");
+			out.println("<td class='itemName' id='item_" + dhHtml.getString("INCOMEITEMID_" + (i+1)) + "'>" + dhHtml.getString("INCOMEITEMNAME_" + (i+1)) + "</td>");
+			out.println("<td class='itemPrice itemPrice_c" + dhHtml.getString("INCOMEITEMID_" + (i+1)) + "' id='itemPr_" + dhHtml.getString("INCOMEITEMID_" + (i+1)) + "'><input id='itemPrice_" + dhHtml.getString("INCOMEITEMID_" + (i+1)) + "' name='INITEMPRICE_" + row + "' type='number' value="+ dhHtml.getString("INCOMEITEMPRICE_" + (i+1)) + "><input type ='hidden' name='ITEM_PRICEDEFAULT_" + row + "' id='itemPriceDefault_" + dhHtml.getString("INCOMEITEMID_" + (i+1)) + "' value="+ dhHtml.getString("INCOMEITEMPRICE_" + (i+1)) + "></td>");
+			out.println("<td><div class='defaultBtn' onclick=\"defaultPrice('" + dhHtml.getString("INCOMEITEMID_" + (i+1)) + "')\">Default</div></td>");
 			out.println("</tr>");
 		}
 		
 		out.println("</table>");
 		out.println("</div>");
 		
+		//固定費
 		out.println("<table class='itemRowSum' id='itemRowSum_kotei'><tr><td class='itemSumName'>固定費合計</td colspan='4'><td id='itemSumPrice_kotei'>0</td></tr></table>");
 		
 		//out.println(item);
 		
+		int itemCnt = StrToInt(dhHtml.getString("ITEMCOUNT"));
 		String shocate ="";
-		for (int i = 0; i < item.size(); i++) {
-			Vector<String> itemRow = (Vector<String>)item.get(i);
-			if (!shocate.equals(itemRow.get(2).toString().trim())) {
+		for (int i = 0; i < itemCnt; i++) {
+			//Vector<String> itemRow = (Vector<String>)item.get(i);
+			if (!shocate.equals(dhHtml.getString("ITEMCATEGORY_" + (i+1)))) {
 				if (!shocate.equals("")) {
 					out.println("</table>");
 					out.println("</div>");
 				}
-				out.println("<table class='itemRowSum' id='itemRowSum_" + itemRow.get(1).toString().trim() + "'><tr><td class='itemSumName'>" + itemRow.get(2).toString().trim() + "合計</td colspan='4'><td id='itemSumPrice_" + itemRow.get(1).toString().trim() + "'>0</td><td class='itemSumBtn' id='itemSumBtn_" + itemRow.get(1).toString().trim() + "' onclick=\"itemHidden('" + itemRow.get(1).toString().trim() + "')\">-</td></tr></table>");
-				out.println("<div class='itemTablediv' id='itemTablediv_" + itemRow.get(1).toString().trim() + "' style='display:block'>");
-				out.println("<table class='itemTable' id='itemTable_" + itemRow.get(1).toString().trim() + "'>");
+				out.println("<table class='itemRowSum' id='itemRowSum_" + dhHtml.getString("ITEMCATEGORYID_" + (i+1)) + "'><tr><td class='itemSumName'>" + dhHtml.getString("ITEMCATEGORY_" + (i+1)) + "合計</td colspan='4'><td id='itemSumPrice_" + dhHtml.getString("ITEMCATEGORYID_" + (i+1)) + "'>0</td><td class='itemSumBtn' id='itemSumBtn_" + dhHtml.getString("ITEMCATEGORYID_" + (i+1)) + "' onclick=\"itemHidden('" + dhHtml.getString("ITEMCATEGORYID_" + (i+1)) + "')\">-</td></tr></table>");
+				out.println("<div class='itemTablediv' id='itemTablediv_" + dhHtml.getString("ITEMCATEGORYID_" + (i+1)) + "' style='display:block'>");
+				out.println("<table class='itemTable' id='itemTable_" + dhHtml.getString("ITEMCATEGORYID_" + (i+1)) + "'>");
 				out.println("<tr class='itemRowTitle'><td></td><td>アイテムID</td><td>アイテム</td><td>金額</td></tr>");
 			} 
-			out.println("<tr class='itemRowDetail' id='itemRowTr_" + itemRow.get(0).toString().trim() + "'>");
+			out.println("<tr class='itemRowDetail' id='itemRowTr_" + dhHtml.getString("ITEMID_" + (i+1)) + "'>");
 			/*for (int j = 0; j < itemRow.size(); j++) {
 				out.println("<td>" + itemRow.get(j).toString().trim() + "</td>");
 			}*/
-			out.println("<input type='hidden' class='itemNo itemNoCategory_" + itemRow.get(1).toString().trim() + "' id='itemNo_" + itemRow.get(0).toString().trim() + "' name='ITEM_NO'>");
-			out.println("<td class='itemCheck itemCheckCategory_" + itemRow.get(1).toString().trim() + "' id='itemCheck_" + itemRow.get(0).toString().trim() + "'><input type='checkbox' id='itemChk_" + itemRow.get(0).toString().trim() + "' name='ITEM_CHECK' value='" + itemRow.get(3).toString().trim() + "' checked></td>");
-			out.println("<td class='itemName' id='item_" + itemRow.get(0).toString().trim() + "'>" + itemRow.get(3).toString().trim() + "</td>");
-			out.println("<td class='itemPrice itemPrice_c" + itemRow.get(0).toString().trim() + "' id='itemPr_" + itemRow.get(0).toString().trim() + "'><input id='itemPrice_" + itemRow.get(0).toString().trim() + "' name='ITEM_PRICE' type='number' value="+ itemRow.get(4).toString().trim() + "><input type ='hidden' name='ITEM_PRICEDEFAULT' id='itemPriceDefault_" + itemRow.get(0).toString().trim() + "' value="+ itemRow.get(4).toString().trim() + "></td>");
-			out.println("<td><div class='defaultBtn' onclick=\"defaultPrice('" + itemRow.get(0).toString().trim() + "')\">Default</div></td>");
+			out.println("<input type='hidden' class='itemNo itemNoCategory_" + dhHtml.getString("ITEMCATEGORYID_" + (i+1)) + "' id='itemNo_" + dhHtml.getString("ITEMID_" + (i+1)) + "' name='ITEM_NO'>");
+			out.println("<td class='itemCheck itemCheckCategory_" + dhHtml.getString("ITEMCATEGORYID_" + (i+1)) + "' id='itemCheck_" + dhHtml.getString("ITEMID_" + (i+1)) + "'><input type='checkbox' id='itemChk_" + dhHtml.getString("ITEMID_" + (i+1)) + "' name='ITEM_CHECK' value='" + dhHtml.getString("ITEMNAME_" + (i+1)) + "' checked></td>");
+			out.println("<td class='itemName' id='item_" + dhHtml.getString("ITEMID_" + (i+1)) + "'>" + dhHtml.getString("ITEMNAME_" + (i+1)) + "</td>");
+			out.println("<td class='itemPrice itemPrice_c" + dhHtml.getString("ITEMID_" + (i+1)) + "' id='itemPr_" + dhHtml.getString("ITEMID_" + (i+1)) + "'><input id='itemPrice_" + dhHtml.getString("ITEMID_" + (i+1)) + "' name='ITEM_PRICE' type='number' value="+ dhHtml.getString("ITEMPRICE_" + (i+1)) + "><input type ='hidden' name='ITEM_PRICEDEFAULT' id='itemPriceDefault_" + dhHtml.getString("ITEMID_" + (i+1)) + "' value="+ dhHtml.getString("ITEMPRICE_" + (i+1)) + "></td>");
+			out.println("<td><div class='defaultBtn' onclick=\"defaultPrice('" + dhHtml.getString("ITEMID_" + (i+1)) + "')\">Default</div></td>");
 			out.println("</tr>");
-			shocate = itemRow.get(2).toString().trim();
+			shocate = dhHtml.getString("ITEMCATEGORY_" + (i+1));
 		}
 		out.println("</table>");
 		out.println("</div>");
+		
+		
+	//年払い
+	out.println("<table class='itemRowSum' id='itemRowSum_" + dhHtml.getString("NENITEMCATEID") + "'><tr><td class='itemSumName'>" + dhHtml.getString("NENITEMCATEGORY") + "合計</td colspan='4'><td id='itemSumPrice_" + dhHtml.getString("NENITEMCATEID") + "'>0</td><td class='itemSumBtn' id='itemSumBtn_" + dhHtml.getString("NENITEMCATEID") + "' onclick=\"itemHidden('" + dhHtml.getString("NENITEMCATEID") + "')\">-</td></tr></table>");
+	out.println("<div class='itemTablediv' id='itemTablediv_" + dhHtml.getString("NENITEMCATEID") + "' style='display:block'>");
+	
+	out.println("<table class='itemTable' id='itemTable_" + dhHtml.getString("NENITEMCATEID") + "'>");
+	out.println("<tr class='itemRowTitle'><td></td><td>アイテムID</td><td>アイテム</td><td>金額</td></tr>"); 
+	out.println("<tr class='itemRowDetail' id='itemRowTr_" + dhHtml.getString("NENITEMID") + "'>");
+	out.println("<input type='hidden' class='itemNo itemNoCategory_" + dhHtml.getString("NENITEMCATEID") + "' id='itemNo_" + dhHtml.getString("NENITEMID") + "' name='ITEM_NO'>");
+	out.println("<td class='itemCheck itemCheckCategory_" + dhHtml.getString("NENITEMCATEID") + "' id='itemCheck_" + dhHtml.getString("NENITEMID") + "'><input type='checkbox' id='itemChk_" + dhHtml.getString("NENITEMID") + "' name='ITEM_CHECK' value='" + dhHtml.getString("NENITEMNAME") + "' checked></td>");
+	out.println("<td class='itemName' id='item_" + dhHtml.getString("NENITEMID") + "'>" + dhHtml.getString("NENITEMNAME") + "</td>");
+	out.println("<td class='itemPrice itemPrice_c" + dhHtml.getString("NENITEMID") + "' id='itemPr_" + dhHtml.getString("NENITEMID") + "'><input id='itemPrice_" + dhHtml.getString("NENITEMID") + "' name='ITEM_PRICE' type='number' value="+ dhHtml.getString("NENPRICE") + "><input type ='hidden' name='ITEM_PRICEDEFAULT' id='itemPriceDefault_" + dhHtml.getString("NENITEMID") + "' value="+ dhHtml.getString("NENPRICE") + "></td>");
+	out.println("<td><div class='defaultBtn' onclick=\"defaultPrice('" + dhHtml.getString("NENITEMID") + "')\">Default</div></td>");
+	out.println("</tr>");
+
+	out.println("</table>");
+	out.println("</div>");
+	
+		out.println("<input type='hidden' name='INROW' value='" + row + "'>");
 		
 		out.println("<a href='#' onclick='document.FORMMAIN.submit();'>登録</a>");
 		
@@ -559,7 +601,7 @@ public class Keikaku extends HttpServlet {
 	}
 	
 	
-	@SuppressWarnings("null")
+	//@SuppressWarnings("null")
 	//--------------------------------------------------------------------------------
 	//
 	// アイテムテーブル取得
@@ -584,85 +626,61 @@ public class Keikaku extends HttpServlet {
         Vector<Vector<String>> income = oraConnect.getSqlResult(resultSet);
         
         
-        dhHtml.setString("ITEMCATEID", incomeID);
-		dhHtml.setString("INCOME", ((Vector<String>)income.get(0)).toString());
+        dhHtml.setString("INCOMECATEID", incomeID);
+		dhHtml.setString("INCOMECATENAME", ((Vector<String>)income.get(0)).get(2).toString().toString());
 		
-		incomeItems = new String[income.size()];
+		//incomeItems = new String[income.size()];
+		
+		dhHtml.setString("INCOMECOUNT", String.valueOf(income.size()));
 
 
 		for (int i = 0; i < income.size(); i++) {
 			Vector<String> incomeRow = (Vector<String>)income.get(i);
 
-			incomeItems[i]=incomeRow.get(0).toString().trim();
+			//incomeItems[i]=incomeRow.get(0).toString().trim();
 			dhHtml.setString("INCOMEITEMID_" + (i+1),incomeRow.get(0).toString().trim());
-			dhHtml.setString("INCOMEITEMNAME_" + (i+1), incomeRow.get(1).toString().trim());
-			dhHtml.setString("INCOMEPRICE_" + (i+1), incomeRow.get(2).toString().trim());
+			dhHtml.setString("INCOMEITEMNAME_" + (i+1), incomeRow.get(3).toString().trim());
+			dhHtml.setString("INCOMEITEMPRICE_" + (i+1), incomeRow.get(4).toString().trim());
 		}
 		
 		System.out.println(Arrays.toString(incomeItems));
-        
-        resultSet = null;
-        setSql  = "";
-        setSql  = setSql + "";
-        setSql  = setSql + "select i.カテゴリID, カテゴリ ";
-        setSql  = setSql + " from K_アイテムマスタ i, K_カテゴリマスタ c ";
-        setSql  = setSql + "where i.カテゴリID = c.カテゴリID";
-        setSql  = setSql + " and i.カテゴリID <> 'A0001' ";
-        setSql  = setSql + " and i.カテゴリID <> 'C0001' ";
-        setSql  = setSql + "group by i.カテゴリID, カテゴリ ";
-        setSql  = setSql + "order by i.カテゴリID ";
-
-        
-        
-        resultSet = oraConnect.ExcecuteQuery(setSql);
-        Vector<Vector<String>> category = oraConnect.getSqlResult(resultSet);
-        
-        categorys = new String[category.size()][2];
-
-
-		for (int i = 0; i < category.size(); i++) {
-			Vector<String> categoryRow = (Vector<String>)category.get(i);
-
-			categorys[i][0]=categoryRow.get(0).toString().trim();
-			categorys[i][1]=categoryRow.get(1).toString().trim();
-
-		}
-
-		for (int i=0;i < categorys.length; i++) {
-			resultSet = null;
-	        setSql  = "";
-	        setSql  = setSql + "select アイテムID, カテゴリID, アイテム, 金額 ";
-	        setSql  = setSql + " from K_アイテムマスタ ";
-	        setSql  = setSql + "where ユーザID = '" + userid + "' ";
-	        setSql  = setSql + " and カテゴリID = '" + categorys[i][0] + "' ";
-	        setSql  = setSql + "order by カテゴリID, アイテムID";
-	        
-	        resultSet = oraConnect.ExcecuteQuery(setSql);
-	        Vector<Vector<String>> item = oraConnect.getSqlResult(resultSet);
-	        Vector<String> itemID = null;
-	        
-	        for (int k=0;k<item.size();k++) {
-	        	Vector<String> itemRow = (Vector<String>)item.get(k);
-	        	itemID = new Vector<>();
-	        	itemID.add(itemRow.get(0).toString().trim());
-				dhHtml.setString("ITEMID_" + (k+1),itemRow.get(0).toString().trim());
-				dhHtml.setString("ITEMCATEGORY_" + (k+1), itemRow.get(1).toString().trim());
-				dhHtml.setString("ITEMNAME_" + (k+1), itemRow.get(1).toString().trim());
-				dhHtml.setString("PRICE_" + (k+1), itemRow.get(2).toString().trim());
-	        }
-	        
-	        items.add(itemID);
-
-			
-		}
-		
-		System.out.println(items);
 		
 		
+		resultSet = null;
 		setSql  = "";
-        setSql  = setSql + "select 'C0001' as アイテムID, 'C0001' as カテゴリID, '年額' as カテゴリ, '年額支払い' as アイテム, AVG(金額)";
+		setSql = setSql + "select アイテムID, i.カテゴリID as カテゴリID, カテゴリ, アイテム, 金額 ";
+		setSql = setSql + "from K_アイテムマスタ  i,K_カテゴリマスタ c ";
+		setSql = setSql + "where i.ユーザID = c.ユーザID  ";
+		setSql = setSql + " and i.カテゴリID = c.カテゴリID  ";
+		setSql = setSql + " and i.ユーザID = '000000'  ";
+		setSql = setSql + " and i.カテゴリID <> 'A0001' ";
+		setSql = setSql + " and i.カテゴリID <> 'C0001' ";
+		setSql = setSql + "order by カテゴリID, アイテムID ";
+		
+		resultSet = oraConnect.ExcecuteQuery(setSql);
+        Vector<Vector<String>> item = oraConnect.getSqlResult(resultSet);
+        
+        dhHtml.setString("ITEMCOUNT", String.valueOf(item.size()));
+
+		
+        for (int i=0; i<item.size();i++) {
+        	Vector<String> itemRow = (Vector<String>)item.get(i);
+			dhHtml.setString("ITEMID_" + (i+1),itemRow.get(0).toString().trim());
+			dhHtml.setString("ITEMCATEGORYID_" + (i+1), itemRow.get(1).toString().trim());
+			dhHtml.setString("ITEMCATEGORY_" + (i+1), itemRow.get(2).toString().trim());
+			dhHtml.setString("ITEMNAME_" + (i+1), itemRow.get(3).toString().trim());
+			dhHtml.setString("ITEMPRICE_" + (i+1), itemRow.get(4).toString().trim());
+        }
+        
+        System.out.println(item);
+        
+		
+		resultSet = null;
+		setSql  = "";
+        setSql  = setSql + "select 'C0001' as アイテムID, カテゴリID, '年額' as カテゴリ, '年額支払い' as アイテム, AVG(金額)";
         setSql  = setSql + " from K_アイテムマスタ";
         setSql  = setSql + " where ユーザID = '" + userid + "' ";
+        setSql  = setSql + " and カテゴリID = 'C0001' ";
         setSql  = setSql + " group by カテゴリID";
 
         
@@ -671,6 +689,8 @@ public class Keikaku extends HttpServlet {
         resultSet = oraConnect.ExcecuteQuery(setSql);
         Vector<Vector<String>> yearpay = oraConnect.getSqlResult(resultSet);
         Vector<String> yearpRow = (Vector<String>)yearpay.get(0);
+        
+        System.out.println(yearpRow);
         
         dhHtml.setString("NENITEMID",yearpRow.get(0).toString().trim());
         dhHtml.setString("NENITEMCATEID", yearpRow.get(1).toString().trim());
@@ -681,6 +701,22 @@ public class Keikaku extends HttpServlet {
         
 
 		return false;
+	}
+	
+	
+	//--------------------------------------------------------------------------------
+	//
+	// 文字列から数値(０以上)
+	//
+	//--------------------------------------------------------------------------------
+	int StrToInt(String str) {
+		
+		try {
+			return Integer.parseInt(str);
+			
+		} catch(Exception e) {
+			return -1;
+		}
 	}
 
 
