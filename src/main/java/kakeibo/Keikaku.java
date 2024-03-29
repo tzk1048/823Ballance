@@ -458,8 +458,8 @@ public class Keikaku extends HttpServlet {
 		
 		int inrow = StrToInt(dhHtml.getString("INROW"));
 		
-		for (int i=0; i < inrow; i++) {
-			out.println();
+		for (int i=1; i <= inrow; i++) {
+			out.println(dhHtml.getString("INCATEID_" + i) + "," + dhHtml.getString("INCATENAME_" + i) + "," + dhHtml.getString("INTYPE_" + i) + "," + dhHtml.getString("INITEMID_" + i) + "," + dhHtml.getString("INITEMNAME_" + i) + "," + dhHtml.getString("INITEMPRICE_" + i));
 		}
 		
 		try {
@@ -498,17 +498,28 @@ public class Keikaku extends HttpServlet {
 		int row = 1;
 		
 		//収入
-		int incomeCnt = StrToInt(dhHtml.getString("INCOMECOUNT"));
 		
+		
+		//収入合計
+		//POST
 		out.println("<input type='hidden' name='INCATEID_" + row + "' value='" + dhHtml.getString("INCOMECATEID") + "'>");
 		out.println("<input type='hidden' name='INCATENAME_" + row + "' value='" + dhHtml.getString("INCOMECATENAME") + "'>");
 		out.println("<input type='hidden' name='INTYPE_" + row + "' value='S'>");
+		out.println("<input type='hidden' name='INITEMID_" + row + "' value=' '>");
+		out.println("<input type='hidden' name='INITEMNAME_" + row + "' value=' '>");
+		out.println("<input type='hidden' name='INITEMPRICE_" + row + "' value='0' id='itemSumPriceName_" + dhHtml.getString("INCOMECATEID") + "'>");
 		
+		//表示
 		out.println("<table class='itemRowSum' id='itemRowSum_" + dhHtml.getString("INCOMECATEID") + "'><tr>");
 		out.println("<td class='itemSumName'>" + dhHtml.getString("INCOMECATENAME") + "合計</td colspan='4'>");
 		out.println("<td id='itemSumPrice_" + dhHtml.getString("INCOMECATEID") + "'>0</td>");
 		out.println("<td class='itemSumBtn' id='itemSumBtn_" + dhHtml.getString("INCOMECATEID") + "' onclick=\"itemHidden('" + dhHtml.getString("INCOMECATEID") + "')\">-</td>");
 		out.println("</tr></table>");
+		
+		
+		//固定費
+		int incomeCnt = StrToInt(dhHtml.getString("INCOMECOUNT"));
+		
 		out.println("<div class='itemTablediv' id='itemTablediv_" + dhHtml.getString("INCOMECATEID") + "' style='display:block'>");
 		out.println("<table class='itemTable' id='itemTable_" + dhHtml.getString("INCOMECATEID") + "'>");
 		out.println("<tr class='itemRowTitle'><td></td><td>アイテムID</td><td>アイテム</td><td>金額</td></tr>");
@@ -517,16 +528,18 @@ public class Keikaku extends HttpServlet {
 			
 			row++;
 			
-			out.println("<tr class='itemRowDetail' id='itemRowTr_" + dhHtml.getString("INCOMEITEMID_" + (i+1)) + "'>");
-			
+			//INPUT
 			out.println("<input type='hidden' name='INCATEID_" + row + "' value='" + dhHtml.getString("INCOMECATEID") + "'>");
 			out.println("<input type='hidden' name='INCATENAME_" + row + "' value='" + dhHtml.getString("INCOMECATENAME") + "'>");
 			out.println("<input type='hidden' name='INTYPE_" + row + "' value='I'>");
+			out.println("<input type='hidden' name='INITEMID_" + row + "' value='" + dhHtml.getString("INCOMEITEMID_" + (i+1)) + "'>");
+			out.println("<input type='hidden' name='INITEMNAME_" + row + "' value='" + dhHtml.getString("INCOMEITEMNAME_" + (i+1)) + "'>");
 			
-			out.println("<input type='hidden' id='INITEMNO_" + dhHtml.getString("INCOMEITEMID_" + (i+1)) + "' name='INITEMNO_" + row + "' value='" + dhHtml.getString("INCOMEITEMID_" + (i+1)) + "'>");
-			out.println("<input type='hidden' id='INITEMNAME_" + dhHtml.getString("INCOMEITEMID_" + (i+1)) + "' name='INITEMNAME_" + row + "' value='" + dhHtml.getString("INCOMEITEMNAME_" + (i+1)) + "'>");
-			
-			out.println("<td class='itemCheck itemCheckCategory_" + dhHtml.getString("INCOMECATEID") + "' id='itemCheck_" + dhHtml.getString("INCOMEITEMID_" + (i+1)) + "'><input type='checkbox' id='itemChk_" + dhHtml.getString("INCOMEITEMID_" + (i+1)) + "' name='INITEMCHECK_" + row + "' value='1' checked></td>");
+			//表示
+			out.println("<tr class='itemRowDetail' id='itemRowTr_" + dhHtml.getString("INCOMEITEMID_" + (i+1)) + "'>");
+			out.println("<td class='itemCheck itemCheckCategory_" + dhHtml.getString("INCOMECATEID") + "' id='itemCheck_" + dhHtml.getString("INCOMEITEMID_" + (i+1)) + "'>");
+			out.println("<input type='checkbox' id='itemChk_" + dhHtml.getString("INCOMEITEMID_" + (i+1)) + "' name='INITEMCHECK_" + row + "' value='1' checked>");
+			out.println("</td>");
 			out.println("<td class='itemName' id='item_" + dhHtml.getString("INCOMEITEMID_" + (i+1)) + "'>" + dhHtml.getString("INCOMEITEMNAME_" + (i+1)) + "</td>");
 			out.println("<td class='itemPrice itemPrice_c" + dhHtml.getString("INCOMEITEMID_" + (i+1)) + "' id='itemPr_" + dhHtml.getString("INCOMEITEMID_" + (i+1)) + "'><input id='itemPrice_" + dhHtml.getString("INCOMEITEMID_" + (i+1)) + "' name='INITEMPRICE_" + row + "' type='number' value="+ dhHtml.getString("INCOMEITEMPRICE_" + (i+1)) + "><input type ='hidden' name='ITEM_PRICEDEFAULT_" + row + "' id='itemPriceDefault_" + dhHtml.getString("INCOMEITEMID_" + (i+1)) + "' value="+ dhHtml.getString("INCOMEITEMPRICE_" + (i+1)) + "></td>");
 			out.println("<td><div class='defaultBtn' onclick=\"defaultPrice('" + dhHtml.getString("INCOMEITEMID_" + (i+1)) + "')\">Default</div></td>");
@@ -537,7 +550,23 @@ public class Keikaku extends HttpServlet {
 		out.println("</div>");
 		
 		//固定費
-		out.println("<table class='itemRowSum' id='itemRowSum_kotei'><tr><td class='itemSumName'>固定費合計</td colspan='4'><td id='itemSumPrice_kotei'>0</td></tr></table>");
+		
+		row++;
+		
+		//固定費合計
+		//INPUT
+		out.println("<input type='hidden' name='INCATEID_" + row + "' value='B0000'>");
+		out.println("<input type='hidden' name='INCATENAME_" + row + "' value='固定費'>");
+		out.println("<input type='hidden' name='INTYPE_" + row + "' value='S'>");
+		out.println("<input type='hidden' name='INITEMID_" + row + "' value=' '>");
+		out.println("<input type='hidden' name='INITEMNAME_" + row + "' value=' '>");
+		out.println("<input type='hidden' name='INITEMPRICE_" + row + "' value='0' id='itemSumPriceName_kotei'>");
+		
+		//表示
+		out.println("<table class='itemRowSum' id='itemRowSum_kotei'><tr>");
+		out.println("<td class='itemSumName'>固定費合計</td colspan='4'>");
+		out.println("<td id='itemSumPrice_kotei'>0</td>");
+		out.println("</tr></table>");
 		
 		//out.println(item);
 		
@@ -550,19 +579,49 @@ public class Keikaku extends HttpServlet {
 					out.println("</table>");
 					out.println("</div>");
 				}
-				out.println("<table class='itemRowSum' id='itemRowSum_" + dhHtml.getString("ITEMCATEGORYID_" + (i+1)) + "'><tr><td class='itemSumName'>" + dhHtml.getString("ITEMCATEGORY_" + (i+1)) + "合計</td colspan='4'><td id='itemSumPrice_" + dhHtml.getString("ITEMCATEGORYID_" + (i+1)) + "'>0</td><td class='itemSumBtn' id='itemSumBtn_" + dhHtml.getString("ITEMCATEGORYID_" + (i+1)) + "' onclick=\"itemHidden('" + dhHtml.getString("ITEMCATEGORYID_" + (i+1)) + "')\">-</td></tr></table>");
+				
+				//固定費カテゴリ合計
+				
+				row++;
+				
+				//INPUT
+				out.println("<input type='hidden' name='INCATEID_" + row + "' value='" + dhHtml.getString("ITEMCATEGORYID_" + (i+1)) + "'>");
+				out.println("<input type='hidden' name='INCATENAME_" + row + "' value='" + dhHtml.getString("ITEMCATEGORY_" + (i+1)) + "'>");
+				out.println("<input type='hidden' name='INTYPE_" + row + "' value='S'>");
+				out.println("<input type='hidden' name='INITEMID_" + row + "' value=' '>");
+				out.println("<input type='hidden' name='INITEMNAME_" + row + "' value=' '>");
+				out.println("<input type='hidden' name='INITEMPRICE_" + row + "' value='0' id='itemSumPriceName_" + dhHtml.getString("ITEMCATEGORYID_" + (i+1)) + "'>");
+				
+				//表示
+				out.println("<table class='itemRowSum' id='itemRowSum_" + dhHtml.getString("ITEMCATEGORYID_" + (i+1)) + "'><tr>");
+				out.println("<td class='itemSumName'>" + dhHtml.getString("ITEMCATEGORY_" + (i+1)) + "合計</td colspan='4'>");
+				out.println("<td id='itemSumPrice_" + dhHtml.getString("ITEMCATEGORYID_" + (i+1)) + "'>0</td>");
+				out.println("<td class='itemSumBtn' id='itemSumBtn_" + dhHtml.getString("ITEMCATEGORYID_" + (i+1)) + "' onclick=\"itemHidden('" + dhHtml.getString("ITEMCATEGORYID_" + (i+1)) + "')\">-</td></tr></table>");
 				out.println("<div class='itemTablediv' id='itemTablediv_" + dhHtml.getString("ITEMCATEGORYID_" + (i+1)) + "' style='display:block'>");
 				out.println("<table class='itemTable' id='itemTable_" + dhHtml.getString("ITEMCATEGORYID_" + (i+1)) + "'>");
 				out.println("<tr class='itemRowTitle'><td></td><td>アイテムID</td><td>アイテム</td><td>金額</td></tr>");
 			} 
+			
+			
+			row++;
+			
+			//INPUT
+			out.println("<input type='hidden' name='INCATEID_" + row + "' value='" + dhHtml.getString("ITEMCATEGORYID_" + (i+1)) + "'>");
+			out.println("<input type='hidden' name='INCATENAME_" + row + "' value='" + dhHtml.getString("ITEMCATEGORY_" + (i+1)) + "'>");
+			out.println("<input type='hidden' name='INTYPE_" + row + "' value='I'>");
+			out.println("<input type='hidden' name='INITEMID_" + row + "' value='" + dhHtml.getString("ITEMID_" + (i+1)) + "'>");
+			out.println("<input type='hidden' name='INITEMNAME_" + row + "' value='" + dhHtml.getString("ITEMNAME_" + (i+1)) + "'>");
+			
+			//表示
 			out.println("<tr class='itemRowDetail' id='itemRowTr_" + dhHtml.getString("ITEMID_" + (i+1)) + "'>");
-			/*for (int j = 0; j < itemRow.size(); j++) {
-				out.println("<td>" + itemRow.get(j).toString().trim() + "</td>");
-			}*/
-			out.println("<input type='hidden' class='itemNo itemNoCategory_" + dhHtml.getString("ITEMCATEGORYID_" + (i+1)) + "' id='itemNo_" + dhHtml.getString("ITEMID_" + (i+1)) + "' name='ITEM_NO'>");
-			out.println("<td class='itemCheck itemCheckCategory_" + dhHtml.getString("ITEMCATEGORYID_" + (i+1)) + "' id='itemCheck_" + dhHtml.getString("ITEMID_" + (i+1)) + "'><input type='checkbox' id='itemChk_" + dhHtml.getString("ITEMID_" + (i+1)) + "' name='ITEM_CHECK' value='" + dhHtml.getString("ITEMNAME_" + (i+1)) + "' checked></td>");
+			out.println("<td class='itemCheck itemCheckCategory_" + dhHtml.getString("ITEMCATEGORYID_" + (i+1)) + "' id='itemCheck_" + dhHtml.getString("ITEMID_" + (i+1)) + "'>");
+			out.println("<input type='checkbox' id='itemChk_" + dhHtml.getString("ITEMID_" + (i+1)) + "' name='INITEMCHECK_" + row + "' value='1' checked>");
+			out.println("</td>");
 			out.println("<td class='itemName' id='item_" + dhHtml.getString("ITEMID_" + (i+1)) + "'>" + dhHtml.getString("ITEMNAME_" + (i+1)) + "</td>");
-			out.println("<td class='itemPrice itemPrice_c" + dhHtml.getString("ITEMID_" + (i+1)) + "' id='itemPr_" + dhHtml.getString("ITEMID_" + (i+1)) + "'><input id='itemPrice_" + dhHtml.getString("ITEMID_" + (i+1)) + "' name='ITEM_PRICE' type='number' value="+ dhHtml.getString("ITEMPRICE_" + (i+1)) + "><input type ='hidden' name='ITEM_PRICEDEFAULT' id='itemPriceDefault_" + dhHtml.getString("ITEMID_" + (i+1)) + "' value="+ dhHtml.getString("ITEMPRICE_" + (i+1)) + "></td>");
+			out.println("<td class='itemPrice itemPrice_c" + dhHtml.getString("ITEMID_" + (i+1)) + "' id='itemPr_" + dhHtml.getString("ITEMID_" + (i+1)) + "'>");
+			out.println("<input id='itemPrice_" + dhHtml.getString("ITEMID_" + (i+1)) + "' name='INITEMPRICE_" + row + "' type='number' value="+ dhHtml.getString("ITEMPRICE_" + (i+1)) + ">");
+			out.println("<input type ='hidden' name='ITEM_PRICEDEFAULT' id='itemPriceDefault_" + dhHtml.getString("ITEMID_" + (i+1)) + "' value="+ dhHtml.getString("ITEMPRICE_" + (i+1)) + ">");
+			out.println("</td>");
 			out.println("<td><div class='defaultBtn' onclick=\"defaultPrice('" + dhHtml.getString("ITEMID_" + (i+1)) + "')\">Default</div></td>");
 			out.println("</tr>");
 			shocate = dhHtml.getString("ITEMCATEGORY_" + (i+1));
@@ -572,16 +631,36 @@ public class Keikaku extends HttpServlet {
 		
 		
 	//年払い
-	out.println("<table class='itemRowSum' id='itemRowSum_" + dhHtml.getString("NENITEMCATEID") + "'><tr><td class='itemSumName'>" + dhHtml.getString("NENITEMCATEGORY") + "合計</td colspan='4'><td id='itemSumPrice_" + dhHtml.getString("NENITEMCATEID") + "'>0</td><td class='itemSumBtn' id='itemSumBtn_" + dhHtml.getString("NENITEMCATEID") + "' onclick=\"itemHidden('" + dhHtml.getString("NENITEMCATEID") + "')\">-</td></tr></table>");
+		
+	row++;
+		
+	//INPUT
+	out.println("<input type='hidden' name='INCATEID_" + row + "' value='" + dhHtml.getString("NENITEMCATEID") + "'>");
+	out.println("<input type='hidden' name='INCATENAME_" + row + "' value='" + dhHtml.getString("NENITEMCATEGORY") + "'>");
+	out.println("<input type='hidden' name='INTYPE_" + row + "' value='I'>");
+	out.println("<input type='hidden' name='INITEMID_" + row + "' value='" + dhHtml.getString("NENITEMCATEID") + "'>");
+	out.println("<input type='hidden' name='INITEMNAME_" + row + "' value='" + dhHtml.getString("NENITEMCATEGORY") + "'>");
+	
+	
+	//表示		
+	out.println("<table class='itemRowSum' id='itemRowSum_" + dhHtml.getString("NENITEMCATEID") + "'><tr>");
+	out.println("<td class='itemSumName'>" + dhHtml.getString("NENITEMCATEGORY") + "合計</td colspan='4'>");
+	out.println("<td id='itemSumPrice_" + dhHtml.getString("NENITEMCATEID") + "'>0</td>");
+	out.println("<td class='itemSumBtn' id='itemSumBtn_" + dhHtml.getString("NENITEMCATEID") + "' onclick=\"itemHidden('" + dhHtml.getString("NENITEMCATEID") + "')\">-</td>");
+	out.println("</tr></table>");
 	out.println("<div class='itemTablediv' id='itemTablediv_" + dhHtml.getString("NENITEMCATEID") + "' style='display:block'>");
 	
 	out.println("<table class='itemTable' id='itemTable_" + dhHtml.getString("NENITEMCATEID") + "'>");
 	out.println("<tr class='itemRowTitle'><td></td><td>アイテムID</td><td>アイテム</td><td>金額</td></tr>"); 
 	out.println("<tr class='itemRowDetail' id='itemRowTr_" + dhHtml.getString("NENITEMID") + "'>");
-	out.println("<input type='hidden' class='itemNo itemNoCategory_" + dhHtml.getString("NENITEMCATEID") + "' id='itemNo_" + dhHtml.getString("NENITEMID") + "' name='ITEM_NO'>");
-	out.println("<td class='itemCheck itemCheckCategory_" + dhHtml.getString("NENITEMCATEID") + "' id='itemCheck_" + dhHtml.getString("NENITEMID") + "'><input type='checkbox' id='itemChk_" + dhHtml.getString("NENITEMID") + "' name='ITEM_CHECK' value='" + dhHtml.getString("NENITEMNAME") + "' checked></td>");
+	out.println("<td class='itemCheck itemCheckCategory_" + dhHtml.getString("NENITEMCATEID") + "' id='itemCheck_" + dhHtml.getString("NENITEMID") + "'>");
+	out.println("<input type='checkbox' id='itemChk_" + dhHtml.getString("NENITEMID") + "' name='INITEMCHECK_" + row + "' value='1' checked>");
+	out.println("</td>");
 	out.println("<td class='itemName' id='item_" + dhHtml.getString("NENITEMID") + "'>" + dhHtml.getString("NENITEMNAME") + "</td>");
-	out.println("<td class='itemPrice itemPrice_c" + dhHtml.getString("NENITEMID") + "' id='itemPr_" + dhHtml.getString("NENITEMID") + "'><input id='itemPrice_" + dhHtml.getString("NENITEMID") + "' name='ITEM_PRICE' type='number' value="+ dhHtml.getString("NENPRICE") + "><input type ='hidden' name='ITEM_PRICEDEFAULT' id='itemPriceDefault_" + dhHtml.getString("NENITEMID") + "' value="+ dhHtml.getString("NENPRICE") + "></td>");
+	out.println("<td class='itemPrice itemPrice_c" + dhHtml.getString("NENITEMID") + "' id='itemPr_" + dhHtml.getString("NENITEMID") + "'>");
+	out.println("<input id='itemPrice_" + dhHtml.getString("NENITEMID") + "' name='INITEMPRICE_" + row + "' type='number' value="+ dhHtml.getString("NENPRICE") + ">");
+	out.println("<input type ='hidden' name='ITEM_PRICEDEFAULT' id='itemPriceDefault_" + dhHtml.getString("NENITEMID") + "' value="+ dhHtml.getString("NENPRICE") + ">");
+	out.println("</td>");
 	out.println("<td><div class='defaultBtn' onclick=\"defaultPrice('" + dhHtml.getString("NENITEMID") + "')\">Default</div></td>");
 	out.println("</tr>");
 
@@ -715,7 +794,7 @@ public class Keikaku extends HttpServlet {
 			return Integer.parseInt(str);
 			
 		} catch(Exception e) {
-			return -1;
+			return 0;
 		}
 	}
 
