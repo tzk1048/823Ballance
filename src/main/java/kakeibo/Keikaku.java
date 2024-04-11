@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.sql.ResultSet;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -40,10 +41,11 @@ public class Keikaku extends HttpServlet {
 	//-------------------------------------
     
     static String userid = "000000";
-    static OraDbConnect oraConnect =null;
+    static OraDbConnect oraConnect = null;
     static String[][] categorys = null;
     static Vector<Vector<String>> items = new Vector<>();
     static String[] incomeItems = null;
+    static String pageDate = "";
 
     
   //--------------------------------------------------------------------------------
@@ -185,6 +187,31 @@ public class Keikaku extends HttpServlet {
         = new SimpleDateFormat("yyyyMMddHHmmss");
         String formatNowDate = sdf1.format(nowDate);
         dhHtml.setSysDateTime(formatNowDate);
+        
+        
+        if(dhHtml.getString("KEIKAKUDATE").equals("")) {
+        	
+
+			SimpleDateFormat sdFormat = new SimpleDateFormat("yyyyMM");
+            Date date = null;
+			try {
+				date = sdFormat.parse(dhHtml.getSysDate().substring(0, 6));
+			} catch (ParseException e) {
+				// TODO 自動生成された catch ブロック
+				e.printStackTrace();
+				System.out.println("日付変換エラー０");
+			}
+            
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            calendar.add(Calendar.MONTH, 1);
+            
+            pageDate = sdFormat.format(calendar.getTime());
+            
+        } else {
+        	pageDate = dhHtml.getString("KEIKAKUDATE");
+        }
+        
 		
 		//登録FLG
 		dhHtml.setString("TOROKUFLG", "1");
@@ -215,6 +242,8 @@ public class Keikaku extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		//doGet(request, response);
+		
+		request.setCharacterEncoding("UTF-8");
 		
 		System.out.println("doPost");		
 		//response.getWriter().append("Served at: ").append(request.getContextPath());
@@ -259,6 +288,38 @@ public class Keikaku extends HttpServlet {
 		//-------------------------------------
 		// HTMLの編集・出力
 		//-------------------------------------
+		
+		//日付取得
+		Date nowDate = new Date();
+        SimpleDateFormat sdf1
+        = new SimpleDateFormat("yyyyMMddHHmmss");
+        String formatNowDate = sdf1.format(nowDate);
+        dhHtml.setSysDateTime(formatNowDate);
+        
+        
+        if(dhHtml.getString("KEIKAKUDATE").equals("")) {
+        	
+
+			SimpleDateFormat sdFormat = new SimpleDateFormat("yyyyMM");
+            Date date = null;
+			try {
+				date = sdFormat.parse(dhHtml.getSysDate().substring(0, 6));
+			} catch (ParseException e) {
+				// TODO 自動生成された catch ブロック
+				e.printStackTrace();
+				System.out.println("日付変換エラー０");
+			}
+            
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            calendar.add(Calendar.MONTH, 1);
+            
+            pageDate = sdFormat.format(calendar.getTime());
+            
+        } else {
+        	pageDate = dhHtml.getString("KEIKAKUDATE");
+        }
+        
 		setHtmlDefault(out, dhHtml);
 		//setHtmlDefault(out);
 		out.close();
@@ -447,6 +508,7 @@ public class Keikaku extends HttpServlet {
 		out.println("<html>");
 		out.println("<head>");
 		out.println("<title>main</title>");
+		out.println("<meta charset='UTF-8'>");
 		out.println("</head>");
 		//out.println("<body>");
 		out.println("<body onload='load()'>");
@@ -457,6 +519,8 @@ public class Keikaku extends HttpServlet {
 		out.println("<p>GET:" + dhHtml.getString("KEIKAKUDATE") + "</p>");
 		
 		int inrow = StrToInt(dhHtml.getString("INROW"));
+		
+		System.out.println(dhHtml.getString("INCATENAME_1"));
 		
 		for (int i=1; i <= inrow; i++) {
 			out.println(dhHtml.getString("INCATEID_" + i) + "," + dhHtml.getString("INCATENAME_" + i) + "," + dhHtml.getString("INTYPE_" + i) + "," + dhHtml.getString("INITEMID_" + i) + "," + dhHtml.getString("INITEMNAME_" + i) + "," + dhHtml.getString("INITEMPRICE_" + i));
@@ -470,8 +534,8 @@ public class Keikaku extends HttpServlet {
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(date);
             
-            
-            out.println("<select name='KEIKAKUDATE'>");
+            out.println("<input type='hidden' id ='pagedate' value='" + pageDate + "'>");
+            out.println("<select id='keikakudate' name='KEIKAKUDATE'>");
             
             calendar.add(Calendar.MONTH, 4);
             out.println("<option value='" + sdFormat.format(calendar.getTime()) + "'>" + sdFormat.format(calendar.getTime()) + "</option>");
@@ -480,13 +544,14 @@ public class Keikaku extends HttpServlet {
             calendar.add(Calendar.MONTH, -1);
             out.println("<option value='" + sdFormat.format(calendar.getTime()) + "'>" + sdFormat.format(calendar.getTime()) + "</option>");
             calendar.add(Calendar.MONTH, -1);
-            out.println("<option value='" + sdFormat.format(calendar.getTime()) + "' selected>" + sdFormat.format(calendar.getTime()) + "</option>");
+            out.println("<option value='" + sdFormat.format(calendar.getTime()) + "'>" + sdFormat.format(calendar.getTime()) + "</option>");
             calendar.add(Calendar.MONTH, -1);
             out.println("<option value='" + sdFormat.format(calendar.getTime()) + "'>" + sdFormat.format(calendar.getTime()) + "</option>");
             
     		out.println("</select>");
     		
 		} catch(Exception e) {
+			System.out.println(e);
 			System.out.println("日付変換エラー");
 		}
 		

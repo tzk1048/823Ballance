@@ -12,7 +12,22 @@ var itemhidden= [] //itemCategoryごとの表示非表示　0:表示 1:非表示
 
 //初期化処理
 const load =()=> {
+	console.log("load実行");
 	//document.getElementById("test").innerText="test";
+	
+	//表示月の選択
+	//document.getElementById("test").innerText=document.getElementById("pagedate").value;
+	console.log("select");
+	console.log(document.getElementById("pagedate").value);
+	var select = document.getElementById("keikakudate");
+	for(var i=0;i < select.length; i++) {
+		console.log(select.options[i].value);
+		if(select.options[i].value==document.getElementById("pagedate").value) {
+			select.options[i].selected = true;
+		}
+	}
+	
+	
 	
 	//カテゴリーの取得
 	itemCategory = document.getElementsByClassName("itemTable");
@@ -34,12 +49,14 @@ const load =()=> {
 		itemID[i]=koID;
 	}
 	
+	//合計金額の計算
 	getSumPrice();
 	
 	//console.log(itemCategoryID);
 	//console.log(itemID);
 	//console.log(sumPrice);
 	
+	//収入項目を隠す
 	itemHidden('A0001');
 }
 
@@ -84,6 +101,16 @@ window.addEventListener('DOMContentLoaded', function(){
 				});
 			}
 		}
+	//inputじゃないよーー
+  /*let input_selectmonth = document.querySelectorAll("input[name=KEIKAKUDATE]");
+
+		input_selectmonth.addEventListener("change",function(){
+					document.FORMMAIN.submit();			
+				});
+
+		input_selectmonth.addEventListener("input",function(){
+					document.FORMMAIN.submit();		
+				});*/
 });
 
 //カテゴリーを隠す
